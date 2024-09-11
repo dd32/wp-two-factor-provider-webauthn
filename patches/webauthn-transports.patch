@@ -1,0 +1,22 @@
+--- src/Server/WebAuthnServer.php
++++ src/Server/WebAuthnServer.php
+@@ -322,6 +322,10 @@ final class WebAuthnServer implements ServerInterface, LoggerAwareInterface
+             foreach ($credentialIds as $credentialId) {
+                 $descriptor = new PublicKeyCredentialDescriptor($credentialId->toBuffer());
+                 $requestOptions->addAllowedCredential($descriptor);
++                $credential = $this->credentialStore->findCredential($credentialId);
++                foreach($credential->getTransports() as $transport){
++                    $descriptor->addTransport($transport);
++                }
+             }
+         }
+ 
+--- src/Credential/UserCredentialInterface.php
++++ src/Credential/UserCredentialInterface.php
+@@ -11,4 +11,6 @@ interface UserCredentialInterface
+     public function getPublicKey(): CoseKeyInterface;
+ 
+     public function getUserHandle(): UserHandle;
++
++    public function getTransports(): array;
+ }
