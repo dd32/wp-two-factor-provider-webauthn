@@ -41,7 +41,8 @@ class WebAuthn_Credential_Store implements CredentialStoreInterface {
 			return new WebAuthn_User_Credential(
 				$credentialId,
 				CoseKey::fromString( $credential->public_key ),
-				UserHandle::fromString( $credential->user_handle )
+				UserHandle::fromString( $credential->user_handle ),
+				$credential->transports ? json_decode( $credential->transports ) : []
 			);
 		}
 
@@ -80,6 +81,24 @@ class WebAuthn_Credential_Store implements CredentialStoreInterface {
 		/** @psalm-var object{credential_id: string}[] */
 		$ids = $wpdb->get_results( $wpdb->prepare( "SELECT credential_id FROM {$wpdb->webauthn_credentials} WHERE user_handle = %s", $userHandle->toString() ) );
 		return array_map( fn ( $c ): CredentialId => CredentialId::fromString( $c->credential_id ), $ids );
+	}
+
+	/**
+	 * @global wpdb $wpdb
+	 * @return Array[]
+	 */
+	public function getUserCredentials( UserHandle $userHandle ): array {
+		/** @var wpdb $wpdb */
+		global $wpdb;
+
+		/** @psalm-var object{credential_id: string}[] */
+		$ids = $wpdb->get_results( $wpdb->prepare( "SELECT transports, credential_id FROM {$wpdb->webauthn_credentials} WHERE user_handle = %s", $userHandle->toString() ) );
+		return array_map( function( $c ) {
+			return [
+				'id' => CredentialId::fromString( $c->credential_id ),
+				'transports' => json_decode( $c->transports ) ?: []
+			];
+		}, $ids );
 	}
 
 	/**

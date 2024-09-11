@@ -101,6 +101,7 @@ export function preparePublicKeyCredential(data: PublicKeyCredential): PublicKey
 					? arrayToBase64String(new Uint8Array(response.authenticatorData))
 					: undefined,
 			signature: 'signature' in response ? arrayToBase64String(new Uint8Array(response.signature)) : undefined,
+			transports: 'getTransports' in response ? response.getTransports() : undefined,
 			userHandle:
 				'userHandle' in response && response.userHandle
 					? arrayToBase64String(new Uint8Array(response.userHandle))
