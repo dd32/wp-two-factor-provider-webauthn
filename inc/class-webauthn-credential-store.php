@@ -84,24 +84,6 @@ class WebAuthn_Credential_Store implements CredentialStoreInterface {
 	}
 
 	/**
-	 * @global wpdb $wpdb
-	 * @return Array[]
-	 */
-	public function getUserCredentials( UserHandle $userHandle ): array {
-		/** @var wpdb $wpdb */
-		global $wpdb;
-
-		/** @psalm-var object{credential_id: string}[] */
-		$ids = $wpdb->get_results( $wpdb->prepare( "SELECT transports, credential_id FROM {$wpdb->webauthn_credentials} WHERE user_handle = %s", $userHandle->toString() ) );
-		return array_map( function( $c ) {
-			return [
-				'id' => CredentialId::fromString( $c->credential_id ),
-				'transports' => json_decode( $c->transports ) ?: []
-			];
-		}, $ids );
-	}
-
-	/**
 	 * @psalm-return CredentialRow[]
 	 * @global wpdb $wpdb
 	 */
