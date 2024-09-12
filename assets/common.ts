@@ -36,6 +36,7 @@ export interface PublicKeyCredentialPlain extends Credential {
 	rawId: string;
 	response: Partial<Convert<AuthenticatorAttestationResponse & AuthenticatorAssertionResponse>>;
 	clientExtensionResults: AuthenticationExtensionsClientOutputs;
+	transports?: string[]
 }
 
 function arrayToBase64String(a: Uint8Array): string {
@@ -91,6 +92,7 @@ export function preparePublicKeyCredential(data: PublicKeyCredential): PublicKey
 		type: data.type,
 		rawId: arrayToBase64String(new Uint8Array(data.rawId)),
 		clientExtensionResults: data.getClientExtensionResults(),
+		transports: 'getTransports' in response ? response.getTransports() : [],
 		response: {
 			attestationObject:
 				'attestationObject' in response
@@ -101,7 +103,6 @@ export function preparePublicKeyCredential(data: PublicKeyCredential): PublicKey
 					? arrayToBase64String(new Uint8Array(response.authenticatorData))
 					: undefined,
 			signature: 'signature' in response ? arrayToBase64String(new Uint8Array(response.signature)) : undefined,
-			transports: 'getTransports' in response ? response.getTransports() : undefined,
 			userHandle:
 				'userHandle' in response && response.userHandle
 					? arrayToBase64String(new Uint8Array(response.userHandle))
