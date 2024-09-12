@@ -1,6 +1,14 @@
 --- src/Server/WebAuthnServer.php
 +++ src/Server/WebAuthnServer.php
-@@ -322,6 +322,10 @@ final class WebAuthnServer implements ServerInterface, LoggerAwareInterface
+@@ -315,6 +315,7 @@ final class WebAuthnServer implements ServerInterface, LoggerAwareInterface
+     {
+         $userHandle = $options->getUserHandle();
+         if ($userHandle !== null) {
++            // TODO: This would be easier with a getUserCredentialDescriptors method, but the library is built around passing CredentialId instances.
+             $credentialIds = $this->credentialStore->getUserCredentialIds($userHandle);
+             if (count($credentialIds) === 0) {
+                 throw new NoCredentialsException('User being authenticated has no credentials.');
+@@ -322,6 +323,10 @@ final class WebAuthnServer implements ServerInterface, LoggerAwareInterface
              foreach ($credentialIds as $credentialId) {
                  $descriptor = new PublicKeyCredentialDescriptor($credentialId->toBuffer());
                  $requestOptions->addAllowedCredential($descriptor);
@@ -10,7 +18,24 @@
 +                }
              }
          }
- 
+
+@@ -330,10 +335,12 @@ final class WebAuthnServer implements ServerInterface, LoggerAwareInterface
+             foreach ($credentialIds as $credential) {
+                 $credentialId = $credential->toBuffer();
+                 $descriptor = new PublicKeyCredentialDescriptor($credentialId);
+-                // TODO
+-//                foreach ($transports as $transport) {
+-//                    $descriptor->addTransport($transport);
+-//                }
++                $credential = $this->credentialStore->findCredential($credentialId);
++                if ($credential) {
++                    foreach($credential->getTransports() as $transport){
++                        $descriptor->addTransport($transport);
++                    }
++                }
+                 $requestOptions->addAllowedCredential($descriptor);
+             }
+         }
 --- src/Credential/UserCredentialInterface.php
 +++ src/Credential/UserCredentialInterface.php
 @@ -11,4 +11,6 @@ interface UserCredentialInterface
