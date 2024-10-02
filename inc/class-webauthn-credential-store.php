@@ -41,7 +41,8 @@ class WebAuthn_Credential_Store implements CredentialStoreInterface {
 			return new WebAuthn_User_Credential(
 				$credentialId,
 				CoseKey::fromString( $credential->public_key ),
-				UserHandle::fromString( $credential->user_handle )
+				UserHandle::fromString( $credential->user_handle ),
+				$credential->transports ? json_decode( $credential->transports ) : []
 			);
 		}
 
@@ -115,7 +116,7 @@ class WebAuthn_Credential_Store implements CredentialStoreInterface {
 	 * @psalm-return CredentialRowArray|null
 	 * @global wpdb $wpdb
 	 */
-	public function save_user_key( string $key_name, RegistrationResultInterface $result ): ?array {
+	public function save_user_key( string $key_name, RegistrationResultInterface $result, array $transports = [] ): ?array {
 		/** @var wpdb $wpdb */
 		global $wpdb;
 
@@ -129,9 +130,10 @@ class WebAuthn_Credential_Store implements CredentialStoreInterface {
 			'added'         => time(),
 			'last_used'     => time(),
 			'u2f'           => 0,
+			'transports'    => json_encode( $transports ),
 		];
 
-		$result = $wpdb->insert( $wpdb->webauthn_credentials, $credential, [ '%s', '%s', '%s', '%d', '%s', '%d', '%d', '%d' ] );
+		$result = $wpdb->insert( $wpdb->webauthn_credentials, $credential, [ '%s', '%s', '%s', '%d', '%s', '%d', '%d', '%d', '%s' ] );
 		return false !== $result ? $credential : null;
 	}
 

@@ -13,11 +13,13 @@ class WebAuthn_User_Credential implements UserCredentialInterface {
 	private CredentialId $credential_id;
 	private CoseKeyInterface $public_key;
 	private UserHandle $user_handle;
+	private $transports;
 
-	public function __construct( CredentialId $credential_id, CoseKeyInterface $public_key, UserHandle $user_handle ) {
+	public function __construct( CredentialId $credential_id, CoseKeyInterface $public_key, UserHandle $user_handle, array $transports = [] ) {
 		$this->credential_id = $credential_id;
 		$this->public_key    = $public_key;
 		$this->user_handle   = $user_handle;
+		$this->transports    = $transports;
 	}
 
 	public function getCredentialId(): CredentialId {
@@ -30,5 +32,9 @@ class WebAuthn_User_Credential implements UserCredentialInterface {
 
 	public function getUserHandle(): UserHandle {
 		return $this->user_handle;
+	}
+
+	public function getTransports(): array {
+		return $this->transports;
 	}
 }

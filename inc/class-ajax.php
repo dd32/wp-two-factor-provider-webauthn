@@ -119,7 +119,7 @@ final class AJAX {
 
 				$name  = Utils::get_post_field_as_string( 'name' );
 				$store = new WebAuthn_Credential_Store();
-				$key   = $store->save_user_key( $name, $result );
+				$key   = $store->save_user_key( $name, $result, $credential['transports'] ); // TODO: transports is just shoehorned in for now.
 				if ( null === $key ) {
 					if ( defined( 'DEBUG_TFPWA' ) && true === constant( 'DEBUG_TFPWA' ) ) {
 						/** @var wpdb $wpdb */

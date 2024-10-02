@@ -9,7 +9,7 @@ final class Schema {
 	use Singleton;
 
 	public const VERSION_KEY    = Constants::SCHEMA_VERSION_KEY;
-	public const LATEST_VERSION = 3;
+	public const LATEST_VERSION = 4;
 
 	/**
 	 * @global wpdb $wpdb
@@ -78,7 +78,8 @@ final class Schema {
 				added int(11) NOT NULL,
 				last_used int(11) NOT NULL,
 				u2f tinyint(2) NOT NULL,
-				PRIMARY KEY  (id),
+				transports varchar(128) NOT NULL DEFAULT '',
+				PRIMARY KEY (id),
 				UNIQUE KEY credential_id (credential_id),
 				KEY user_handle (user_handle)
 			) {$charset_collate};",
